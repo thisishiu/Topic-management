@@ -5,6 +5,7 @@ import path from "path";
 import { appRouter } from "./routes/index.js";
 import { env } from "./config/env.js";
 import { errorHandler, notFound } from "./middlewares/error.middleware.js";
+import { requestLogger } from "./utils/logger.js";
 
 export const app = express();
 
@@ -16,6 +17,7 @@ app.use(
 );
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
+app.use(requestLogger);
 
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api", appRouter);

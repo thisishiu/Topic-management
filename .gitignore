@@ -2,6 +2,7 @@ node_modules
 dist
 .env
 ./uploads
+logs
 client/dist
 
 /generated/prisma

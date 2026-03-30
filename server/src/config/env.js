@@ -6,6 +6,10 @@ export const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   port: Number(process.env.PORT || 5000),
   clientUrl: process.env.CLIENT_URL,
+  logLevel: (process.env.LOG_LEVEL || "info").toLowerCase(),
+  logToFile:
+    String(process.env.LOG_TO_FILE || (process.env.NODE_ENV === "production" ? "true" : "false")).toLowerCase() ===
+    "true",
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   jwtAccessExpires: process.env.JWT_ACCESS_EXPIRES || "15m",
