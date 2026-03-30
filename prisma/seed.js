@@ -39,17 +39,48 @@ async function main() {
     role: "DEPARTMENT_HEAD",
   });
 
-  const lecturer1 = await upsertUser({
-    email: "lecturer1@topicflow.edu",
-    fullName: "Dr. Alice Nguyen",
-    role: "LECTURER",
-  });
+  const lecturerSeedInput = [
+    { email: "thiennd@hcmute.edu.vn", major: "QLCN" },
+    { email: "thiennd@hcmute.edu.vn", major: "QLCN" },
+    { email: "thiennd@hcmute.edu.vn", major: "QLCN" },
+    { email: "thienise@gmail.com", major: "QLCN" },
+    { email: "thiennd@hcmute.edu.vn", major: "ECom" },
+    { email: "thienise@gmail.com", major: "QLCN" },
+    { email: "thienise@gmail.com", major: "QLCN" },
+    { email: "ise.thien@gmail.com", major: "QLCN" },
+    { email: "ise.thien@gmail.com", major: "QLCN" },
+    { email: "ise.thien@gmail.com", major: "Logistics" },
+    { email: "ise.thien@gmail.com", major: "Logistics" },
+  ];
 
-  const lecturer2 = await upsertUser({
-    email: "lecturer2@topicflow.edu",
-    fullName: "Dr. Minh Tran",
-    role: "LECTURER",
-  });
+  const majorsByEmail = lecturerSeedInput.reduce((acc, item) => {
+    if (!acc[item.email]) {
+      acc[item.email] = new Set();
+    }
+    acc[item.email].add(item.major);
+    return acc;
+  }, {});
+
+  const lecturerAccounts = [];
+  for (const [email, majorSet] of Object.entries(majorsByEmail)) {
+    const baseName = email.split("@")[0];
+    const majorText = Array.from(majorSet).join(", ");
+    const fullName = `${baseName} (${majorText})`;
+
+    const lecturer = await upsertUser({
+      email,
+      fullName,
+      role: "LECTURER",
+    });
+
+    lecturerAccounts.push(lecturer);
+  }
+
+  if (lecturerAccounts.length < 2) {
+    throw new Error("Seed requires at least 2 lecturers to create committee assignments.");
+  }
+
+  const [lecturer1, lecturer2] = lecturerAccounts;
 
   const student1 = await upsertUser({
     email: "student1@topicflow.edu",
@@ -135,7 +166,7 @@ async function main() {
   console.log({
     admin: admin.email,
     departmentHead: departmentHead.email,
-    lecturer: lecturer1.email,
+    lecturers: lecturerAccounts.map((item) => item.email),
     student: student1.email,
   });
 }
