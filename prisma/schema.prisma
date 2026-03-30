@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  STUDENT
+  LECTURER
+  DEPARTMENT_HEAD
+  ADMIN
+}
+
+enum TopicStatus {
+  PENDING_LECTURER
+  LECTURER_REJECTED
+  LECTURER_APPROVED
+  DEPARTMENT_REVIEW
+  DEPARTMENT_APPROVED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id                 String                @id @default(cuid())
+  email              String                @unique
+  fullName           String
+  studentCode        String?
+  passwordHash       String
+  role               Role                  @default(STUDENT)
+  active             Boolean               @default(true)
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  refreshTokens      RefreshToken[]
+  createdTopics      Topic[]               @relation("TopicCreator")
+  studentTopics      TopicMember[]
+  supervisedTopics   Topic[]               @relation("Supervisor")
+  lecturerApprovals  LecturerApproval[]
+  departmentApprovals DepartmentApproval[]
+  committeeAssignments CommitteeAssignment[]
+  progressUpdates    TopicProgress[]       @relation("ProgressAuthor")
+  scoreForms         ScoreForm[]           @relation("ScoreAuthor")
+  uploads            UploadedRevision[]    @relation("UploadAuthor")
+}
+
+model RefreshToken {
+  id         String   @id @default(cuid())
+  tokenHash  String
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Topic {
+  id                    String               @id @default(cuid())
+  title                 String
+  description           String
+  proposalFileUrl       String?
+  fields                String[]
+  status                TopicStatus          @default(PENDING_LECTURER)
+  createdById           String
+  supervisorId          String?
+  reviewerLecturerId    String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  createdBy             User                 @relation("TopicCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  supervisor            User?                @relation("Supervisor", fields: [supervisorId], references: [id])
+  members               TopicMember[]
+  progresses            TopicProgress[]
+  lecturerApprovals     LecturerApproval[]
+  departmentApprovals   DepartmentApproval[]
+  scoreForms            ScoreForm[]
+  revisions             UploadedRevision[]
+  committeeAssignments  CommitteeAssignment[]
+}
+
+model TopicMember {
+  id          String   @id @default(cuid())
+  topicId     String
+  studentId   String
+  studentCode String
+  createdAt   DateTime @default(now())
+  topic       Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  student     User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([topicId, studentId])
+}
+
+model TopicProgress {
+  id         String   @id @default(cuid())
+  topicId    String
+  title      String
+  details    String
+  progress   Int
+  authorId   String
+  createdAt  DateTime @default(now())
+  topic      Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  author     User     @relation("ProgressAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model LecturerApproval {
+  id          String         @id @default(cuid())
+  topicId     String
+  lecturerId  String
+  status      ApprovalStatus @default(PENDING)
+  note        String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  topic       Topic          @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  lecturer    User           @relation(fields: [lecturerId], references: [id], onDelete: Cascade)
+
+  @@unique([topicId, lecturerId])
+}
+
+model DepartmentApproval {
+  id            String         @id @default(cuid())
+  topicId        String
+  reviewerId     String
+  status         ApprovalStatus @default(PENDING)
+  note           String?
+  suggestedPanel String[]       @default([])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  topic          Topic          @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  reviewer       User           @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  @@unique([topicId, reviewerId])
+}
+
+model ScoreForm {
+  id            String   @id @default(cuid())
+  topicId        String
+  authorId       String
+  score          Float
+  feedback       String
+  signatureUrl   String?
+  pdfUrl         String?
+  createdAt      DateTime @default(now())
+  topic          Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  author         User     @relation("ScoreAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model UploadedRevision {
+  id          String   @id @default(cuid())
+  topicId      String
+  authorId     String
+  fileUrl      String
+  note         String?
+  createdAt    DateTime @default(now())
+  topic        Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  author       User      @relation("UploadAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model CommitteeAssignment {
+  id          String   @id @default(cuid())
+  topicId      String
+  lecturerId   String
+  role         String
+  createdAt    DateTime @default(now())
+  topic        Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  lecturer     User      @relation(fields: [lecturerId], references: [id], onDelete: Cascade)
+
+  @@unique([topicId, lecturerId, role])
+}

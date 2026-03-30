@@ -1,0 +1,22 @@
+Tính năng
+    Đăng nhập
+        Dữ liệu gửi về mail, cấp quyền đăng nhập
+    Đăng kí đề tài
+        Tên đề tài, chọn 1-2 sinh viên, nhập mã số sinh viên của các thành viên (mặc định có mã sẵn chính là sinh viên đăng kí (người đang đăng nhập))
+        Đăng kí kèm theo proposal
+        Mảng đề tài, lĩnh vực => short list lĩnh vực, gợi ý danh sách giảng viên hoặc chọn giảng viên
+    Đăng kí giảng viên
+    Theo dõi tiến độ
+        Có thể theo dõi tiến độ, chi tiết của đề tài
+    Giảng viên duyệt đề tài
+        Khi sinh viên chọn giảng viên và đăng kí đề tài => thông báo đến giảng viên
+        Giảng viên xem và xác nhận => chập nhận, từ chối => thông báo cho sinh viên
+        Từ chối => thông báo cho sinh viên chọn lại danh sách từ giảng viên available
+        Giảng viên chấp nhận đề tài khi đã xong khóa luận
+    Giảng viên có thể thay đổi tên đề tài
+    Quản lí duyệt đề tài
+        Trưởng bộ môn, ban chủ nhiệm, chọn, đồng ý thực hiện đề tài => gợi ý giảng viên phản biện, duyệt giảng viên phản biện
+        => thông báo điếm giảng viên
+    Tạo các form / nhập điểm (có thể xuât file pdf, chèn chữ kí lưu file)
+    Upload bài chỉnh sửa
+    Quản lí phân hội đồng
