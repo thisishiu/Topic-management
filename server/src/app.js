@@ -9,12 +9,27 @@ import { requestLogger } from "./utils/logger.js";
 
 export const app = express();
 
-app.use(
-  cors({
-    origin: env.clientUrl,
-    credentials: true,
-  })
-);
+const allowedOrigins = env.clientUrls;
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow non-browser requests (curl/Postman) and same-origin server calls.
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 app.use(requestLogger);
