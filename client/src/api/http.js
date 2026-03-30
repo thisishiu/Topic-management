@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const rawApiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-const API_BASE_URL = /^https?:\/\//i.test(rawApiBaseUrl) ? rawApiBaseUrl : `http://${rawApiBaseUrl}`;
+const rawApiBaseUrl = import.meta.env.VITE_API_BASE_URL || "https://localhost:5000/api";
+const API_BASE_URL = /^https?:\/\//i.test(rawApiBaseUrl) ? rawApiBaseUrl : `https://${rawApiBaseUrl}`;
 
 const ACCESS_TOKEN_KEY = "topicflow_access_token";
 const REFRESH_TOKEN_KEY = "topicflow_refresh_token";
